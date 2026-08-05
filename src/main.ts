@@ -19,7 +19,6 @@ let currentPreview: 'original' | 'lineart' | 'quantized' | 'final' = 'original';
 let cachedLineArt: ImageData | null = null;
 let cachedQuantized: ImageData | null = null;
 let cachedFinal: HTMLCanvasElement | null = null;
-let currentPalette: { r: number, g: number, b: number }[] = [];
 
 type BatchResult = {
   finalDataUrl: string;
@@ -191,7 +190,6 @@ processBtn.addEventListener('click', async () => {
         cachedLineArt = segResult.lineArt;
         cachedQuantized = segResult.cleanedData;
         cachedFinal = finalCanvas;
-        currentPalette = palette;
         
         legendContainer.innerHTML = '';
         palette.forEach((c, idx) => {
