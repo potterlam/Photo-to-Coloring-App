@@ -152,11 +152,30 @@ export function segmentAndClean(
      }
 
      if (pixels.length > minRegionSize / 2) { 
+        const mathCentroidX = sumX / pixels.length;
+        const mathCentroidY = sumY / pixels.length;
+
+        // Guarantee label is printed inside the region (mathematical centroid can fall outside for C-shapes)
+        let actualX = mathCentroidX;
+        let actualY = mathCentroidY;
+        let minDistToCentroid = Infinity;
+        
+        for (const p of pixels) {
+           const px = p % width;
+           const py = Math.floor(p / width);
+           const dist = (px - mathCentroidX) ** 2 + (py - mathCentroidY) ** 2;
+           if (dist < minDistToCentroid) {
+              minDistToCentroid = dist;
+              actualX = px;
+              actualY = py;
+           }
+        }
+
         outRegions.push({
            id: rid,
            paletteIndex: pIndex,
            pixelCount: pixels.length,
-           centroid: { x: sumX / pixels.length, y: sumY / pixels.length },
+           centroid: { x: actualX, y: actualY },
            boundingBox: { minX, minY, maxX, maxY }
         });
      }
