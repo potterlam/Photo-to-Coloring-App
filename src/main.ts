@@ -139,8 +139,9 @@ processBtn.addEventListener('click', async () => {
       pCanvas.height = height;
       const pCtx = pCanvas.getContext('2d')!;
       
-      // Use contrast to harden blurry edges, removing transition artifacts ("blur in between")
-      pCtx.filter = 'contrast(160%) saturate(120%)'; 
+      // Remove heavy contrast/saturation CSS filters that were destroying subtle skin tones
+      // Just draw the pure original image to let the CIEDE2000 algorithm do its job accurately
+      pCtx.filter = 'none'; 
       pCtx.drawImage(img, 0, 0, width, height);
       const sourceData = pCtx.getImageData(0, 0, width, height);
 
