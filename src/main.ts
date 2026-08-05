@@ -161,19 +161,16 @@ processBtn.addEventListener('click', async () => {
       
       fCtx.putImageData(segResult.lineArt, 0, 0);
 
-      fCtx.font = 'bold 14px "Comic Sans MS", "Comic Sans", cursive, sans-serif';
+      fCtx.font = 'normal 12px Arial, Helvetica, sans-serif';
       fCtx.textAlign = 'center';
       fCtx.textBaseline = 'middle';
-      fCtx.fillStyle = '#000';
-      fCtx.strokeStyle = '#fff';
-      fCtx.lineWidth = 3;
+      fCtx.fillStyle = '#888888'; // Medium gray so it's readable but easily covered by crayons
 
       segResult.regions.forEach(region => {
         const w = region.boundingBox.maxX - region.boundingBox.minX;
         const h = region.boundingBox.maxY - region.boundingBox.minY;
         if (w > 12 && h > 12 && region.pixelCount > 40) {
           const text = (region.paletteIndex + 1).toString();
-          fCtx.strokeText(text, region.centroid.x, region.centroid.y);
           fCtx.fillText(text, region.centroid.x, region.centroid.y);
         }
       });
