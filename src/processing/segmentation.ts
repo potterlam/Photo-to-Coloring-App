@@ -1,4 +1,5 @@
 import type { RGB } from './quantization';
+import { colorDistance } from './quantization';
 
 export type Region = {
   id: number;
@@ -11,7 +12,7 @@ export type Region = {
 function matchPalette(r: number, g: number, b: number, palette: RGB[]): number {
   let minD = Infinity; let best = 0;
   for (let i = 0; i < palette.length; i++) {
-     const d = (palette[i].r - r)**2 + (palette[i].g - g)**2 + (palette[i].b - b)**2;
+     const d = colorDistance(palette[i], { r, g, b });
      if (d < minD) { minD = d; best = i; }
   }
   return best;

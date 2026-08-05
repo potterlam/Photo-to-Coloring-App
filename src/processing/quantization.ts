@@ -1,7 +1,17 @@
 export type RGB = { r: number; g: number; b: number };
 
-function colorDistance(c1: RGB, c2: RGB) {
-  return Math.sqrt(Math.pow(c1.r - c2.r, 2) + Math.pow(c1.g - c2.g, 2) + Math.pow(c1.b - c2.b, 2));
+// Using "Redmean" color distance approximation to CIELAB space
+// This gives much better perceptual differentiation for tricky colors like human skin tones, yellows and pale oranges
+export function colorDistance(c1: RGB, c2: RGB) {
+  const rMean = (c1.r + c2.r) / 2;
+  const dR = c1.r - c2.r;
+  const dG = c1.g - c2.g;
+  const dB = c1.b - c2.b;
+  return Math.sqrt(
+    (2 + rMean / 256) * dR * dR +
+    4 * dG * dG +
+    (2 + (255 - rMean) / 256) * dB * dB
+  );
 }
 
 export function quantizeColors(imageData: ImageData, maxColors: number): { newImageData: ImageData, palette: RGB[] } {
