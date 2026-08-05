@@ -144,8 +144,8 @@ processBtn.addEventListener('click', async () => {
       pCtx.drawImage(img, 0, 0, width, height);
       const sourceData = pCtx.getImageData(0, 0, width, height);
 
-      // Quantization
-      const result = quantizeColors(sourceData, maxColors);
+      // Quantization (Now using await with image-q)
+      const result = await quantizeColors(sourceData, maxColors);
       const palette = result.palette;
 
       // Segmentation & Clean
