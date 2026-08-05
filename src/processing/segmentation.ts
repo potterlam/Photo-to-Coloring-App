@@ -118,20 +118,15 @@ export function segmentAndClean(
   const cleanedData = new ImageData(width, height);
   const lineArt = new ImageData(width, height);
 
-  // Default line art to white
-  for (let i = 0; i < width * height * 4; i++) {
-     if (i % 4 === 3) lineArt.data[i] = 255;
-     else lineArt.data[i] = 255;
-  }
+  // Default line art to white background
+  lineArt.data.fill(255);
 
   const outRegions: Region[] = [];
   for (let rid = 1; rid < regionPixels.length; rid++) {
      const pixels = regionPixels[rid];
      if (pixels.length === 0) continue; // merged
 
-     const pIndex = regionPalettes[rid]; // Note: since merged, actual palette index should be what it merged INTO.
-     // Wait, if region A merged into region B, regionPixels[A] is empty. We only process B. 
-     // regionPalettes[B] is correct!
+     const pIndex = regionPalettes[rid]; 
      const color = palette[pIndex];
 
      let minX = width, minY = height, maxX = 0, maxY = 0;
@@ -153,26 +148,6 @@ export function segmentAndClean(
         cleanedData.data[idx+1] = color.g;
         cleanedData.data[idx+2] = color.b;
         cleanedData.data[idx+3] = 255;
-
-        // Border detection
-        let isBorder = false;
-        if (px < width - 1 && regionMap[p+1] !== rid) isBorder = true;
-        else if (py < height - 1 && regionMap[p+width] !== rid) isBorder = true;
-        
-        // Add thickness by drawing a 3x3 black block on borders
-        if (isBorder) {
-           for (let dy = -1; dy <= 1; dy++) {
-              for (let dx = -1; dx <= 1; dx++) {
-                 const nx = px + dx; const ny = py + dy;
-                 if (nx >= 0 && nx < width && ny >= 0 && ny < height) {
-                    const nIdx = (ny * width + nx) * 4;
-                    lineArt.data[nIdx] = 0;
-                    lineArt.data[nIdx+1] = 0;
-                    lineArt.data[nIdx+2] = 0;
-                 }
-              }
-           }
-        }
      }
 
      if (pixels.length > minRegionSize / 2) { 
@@ -183,6 +158,35 @@ export function segmentAndClean(
            centroid: { x: sumX / pixels.length, y: sumY / pixels.length },
            boundingBox: { minX, minY, maxX, maxY }
         });
+     }
+  }
+
+  // Draw crisp edges
+  for (let y = 0; y < height; y++) {
+     for (let x = 0; x < width; x++) {
+        const idx = y * width + x;
+        const rid = regionMap[idx];
+        
+        let isBorder = false;
+        if (x < width - 1 && regionMap[idx + 1] !== rid) isBorder = true;
+        if (y < height - 1 && regionMap[idx + width] !== rid) isBorder = true;
+        // Diagonal check helps make corners connect flawlessly
+        if (x > 0 && y < height - 1 && regionMap[idx - 1 + width] !== rid) isBorder = true;
+        
+        if (isBorder) {
+           // 2x2 solid crisp stroke for 2px thickness (much cleaner than 3x3 chunks)
+           for (let dy = 0; dy <= 1; dy++) {
+              for (let dx = 0; dx <= 1; dx++) {
+                 const nx = x + dx; const ny = y + dy;
+                 if (nx < width && ny < height) {
+                    const nIdx = (ny * width + nx) * 4;
+                    lineArt.data[nIdx] = 0;
+                    lineArt.data[nIdx+1] = 0;
+                    lineArt.data[nIdx+2] = 0;
+                 }
+              }
+           }
+        }
      }
   }
 

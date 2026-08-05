@@ -138,7 +138,9 @@ processBtn.addEventListener('click', async () => {
       pCanvas.width = width;
       pCanvas.height = height;
       const pCtx = pCanvas.getContext('2d')!;
-      pCtx.filter = 'blur(1px)'; 
+      
+      // Use contrast to harden blurry edges, removing transition artifacts ("blur in between")
+      pCtx.filter = 'contrast(160%) saturate(120%)'; 
       pCtx.drawImage(img, 0, 0, width, height);
       const sourceData = pCtx.getImageData(0, 0, width, height);
 
