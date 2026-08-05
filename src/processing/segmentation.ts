@@ -155,17 +155,29 @@ export function segmentAndClean(
         const mathCentroidX = sumX / pixels.length;
         const mathCentroidY = sumY / pixels.length;
 
-        // Guarantee label is printed inside the region (mathematical centroid can fall outside for C-shapes)
+        // Guarantee label is printed completely inside the region, avoiding the absolute edges
         let actualX = mathCentroidX;
         let actualY = mathCentroidY;
-        let minDistToCentroid = Infinity;
+        let bestScore = Infinity;
         
         for (const p of pixels) {
            const px = p % width;
            const py = Math.floor(p / width);
-           const dist = (px - mathCentroidX) ** 2 + (py - mathCentroidY) ** 2;
-           if (dist < minDistToCentroid) {
-              minDistToCentroid = dist;
+           
+           // Distance to mathematical center (we still want it roughly in the middle)
+           const distToCenter = (px - mathCentroidX) ** 2 + (py - mathCentroidY) ** 2;
+           
+           // Extreme penalty if pixel touches another color's boundary, forcing labels to the safest "fat" part of the shape
+           let boundaryPenalty = 0;
+           if (px < width - 1 && regionMap[p + 1] !== rid) boundaryPenalty += 2000;
+           if (px > 0 && regionMap[p - 1] !== rid) boundaryPenalty += 2000;
+           if (py < height - 1 && regionMap[p + width] !== rid) boundaryPenalty += 2000;
+           if (py > 0 && regionMap[p - width] !== rid) boundaryPenalty += 2000;
+           
+           const score = distToCenter + boundaryPenalty;
+           
+           if (score < bestScore) {
+              bestScore = score;
               actualX = px;
               actualY = py;
            }

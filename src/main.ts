@@ -161,7 +161,7 @@ processBtn.addEventListener('click', async () => {
       
       fCtx.putImageData(segResult.lineArt, 0, 0);
 
-      fCtx.font = 'normal 12px Arial, Helvetica, sans-serif';
+      fCtx.font = 'normal 9px Arial, Helvetica, sans-serif';
       fCtx.textAlign = 'center';
       fCtx.textBaseline = 'middle';
       fCtx.fillStyle = '#888888'; // Medium gray so it's readable but easily covered by crayons
@@ -169,7 +169,8 @@ processBtn.addEventListener('click', async () => {
       segResult.regions.forEach(region => {
         const w = region.boundingBox.maxX - region.boundingBox.minX;
         const h = region.boundingBox.maxY - region.boundingBox.minY;
-        if (w > 12 && h > 12 && region.pixelCount > 40) {
+        // Increase minimum box size so text isn't drawn in extremely tight spots
+        if (w > 16 && h > 16 && region.pixelCount > 60) {
           const text = (region.paletteIndex + 1).toString();
           fCtx.fillText(text, region.centroid.x, region.centroid.y);
         }
