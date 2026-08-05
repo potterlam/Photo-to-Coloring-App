@@ -22,7 +22,7 @@ export async function quantizeColors(imageData: ImageData, maxColors: number): P
   const paletteObj = await iq.buildPalette([inPointContainer], {
       colors: maxColors,
       colorDistanceFormula: 'ciede2000', 
-      paletteQuantization: 'wuquant', // Wu's Color Quantizer is excellent for retaining distinct prominent details
+      paletteQuantization: 'neuquant-float', // NeuQuant (Neural Network Quantizer) learns distinct colors much better
   });
   
   const outPointContainer = await iq.applyPalette(inPointContainer, paletteObj, {
