@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Photo-to-Coloring Web App</title>
+    <style>
+      body {
+        font-family: system-ui, -apple-system, sans-serif;
+        background: #f4f4f5;
+        color: #18181b;
+        margin: 0;
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+      .container {
+        max-width: 1000px;
+        width: 100%;
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+      }
+      .panel {
+        margin-bottom: 20px;
+      }
+      .controls {
+        display: flex;
+        gap: 20px;
+        flex-wrap: wrap;
+        margin-bottom: 20px;
+      }
+      .control-group {
+        display: flex;
+        flex-direction: column;
+      }
+      label {
+        font-weight: bold;
+        margin-bottom: 5px;
+      }
+      select, input[type="file"], button {
+        padding: 8px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 14px;
+      }
+      button {
+        background: #3b82f6;
+        color: white;
+        border: none;
+        cursor: pointer;
+      }
+      button:hover {
+        background: #2563eb;
+      }
+      button:disabled {
+        background: #9ca3af;
+        cursor: not-allowed;
+      }
+      .tabs {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 20px;
+      }
+      .tab {
+        padding: 10px 20px;
+        background: #e5e7eb;
+        border-radius: 4px;
+        cursor: pointer;
+        user-select: none;
+      }
+      .tab.active {
+        background: #3b82f6;
+        color: white;
+      }
+      .preview-container {
+        border: 1px solid #e5e7eb;
+        background: #fafafa;
+        min-height: 400px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        overflow: auto;
+        position: relative;
+      }
+      canvas {
+        max-width: 100%;
+        background: white;
+      }
+      .loading {
+        position: absolute;
+        inset: 0;
+        background: rgba(255,255,255,0.8);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 1.2rem;
+        font-weight: bold;
+        z-index: 10;
+        display: none;
+      }
+      
+      .legend-container {
+        margin-top: 20px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px;
+      }
+      .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        font-size: 14px;
+      }
+      .color-box {
+        width: 24px;
+        height: 24px;
+        border: 1px solid #ccc;
+      }
+
+      @media print {
+        body { margin: 0; padding: 0; background: white; }
+        .controls, .tabs { display: none; }
+        .container { box-shadow: none; padding: 0; }
+        #page-footer { display: flex !important; }
+      }
+      #page-footer {
+        display: none;
+        justify-content: space-between;
+        margin-top: 20px;
+        font-size: 12px;
+      }
+      #original-thumbnail {
+        max-height: 100px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Photo-to-Coloring Web App</h1>
+
+      <div class="panel controls">
+        <div class="control-group">
+          <label for="image-upload">Upload Image(s)</label>
+          <input type="file" id="image-upload" accept="image/png, image/jpeg, image/webp" multiple />
+        </div>
+        
+        <div class="control-group">
+          <label for="difficulty">Difficulty</label>
+          <select id="difficulty">
+            <option value="5" selected>Very Easy - Kindergarten (5 colors)</option>
+            <option value="10">Easy (10 colors max)</option>
+            <option value="15">Medium (15 colors max)</option>
+            <option value="20">Hard (20 colors max)</option>
+          </select>
+        </div>
+
+        <div class="control-group" style="justify-content: flex-end;">
+          <button id="process-btn" disabled>Process Image</button>
+        </div>
+
+        <div class="control-group" style="justify-content: flex-end;">
+          <button id="export-pdf-btn" disabled>Export PDF</button>
+        </div>
+      </div>
+
+      <div class="tabs">
+        <div class="tab active" data-target="original">Original</div>
+        <div class="tab" data-target="lineart">Line Art</div>
+        <div class="tab" data-target="quantized">Quantized</div>
+        <div class="tab" data-target="final">Final Printable</div>
+      </div>
+
+      <div class="preview-container">
+        <div class="loading" id="loading-indicator">Processing...</div>
+        <canvas id="main-canvas"></canvas>
+      </div>
+
+      <div class="legend-container" id="legend"></div>
+
+      <div id="page-footer">
+        <div>
+          <p id="user-info"></p>
+        </div>
+        <div>
+          <img id="original-thumbnail" alt="Original Thumb" />
+        </div>
+      </div>
+
+    </div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
